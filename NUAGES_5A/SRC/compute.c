@@ -41,6 +41,7 @@ void ComputeImage(guchar *img_orig,
 
     printf("Img: l:%d c:%d\n", nb_lines, nb_cols);
 
+    // Find min/max
     img_size=nb_cols*nb_lines;
     guchar max_val = 0;
     guchar min_val = 255;
@@ -61,9 +62,11 @@ void ComputeImage(guchar *img_orig,
     const int nb_classes_xs = 9;
     int nb_classes = nb_classes_xs;
 
+    // Init of mass centers
     guchar centers[nb_classes][MAX_VECT];
     fill_lin_space(centers, max_val, min_val, nb_classes);
 
+    // Compute radiometric vectors
     img_size = nb_cols * nb_lines;
     for (i = 0; i < img_size * nb_channels; i = i + nb_channels)
         for (channel_i = 0; channel_i < nb_channels; channel_i++)
