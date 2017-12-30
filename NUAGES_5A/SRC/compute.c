@@ -45,8 +45,8 @@ void ComputeImage(guchar *img_orig,
     img_size=nb_cols*nb_lines;
     guchar max_val = 0;
     guchar min_val = 255;
-    for(i=0; i<img_size*nb_channels; i=i+nb_channels)
-        for(channel_i=0; channel_i<nb_channels; channel_i++)
+    for (i=0; i<img_size*nb_channels; i=i+nb_channels)
+        for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
             guchar c = get_pixel_radiometry(img_orig, i);
             img_res[i + channel_i] = c;
@@ -75,6 +75,13 @@ void ComputeImage(guchar *img_orig,
     compute_radiometric_vectors(radiometry_img, img_res, nb_cols, nb_lines, RAD_VECT_SIZE);
     for (int i = 0; i < RAD_VECT_SIZE; i++)
         printf("%d\n", radiometry_img[0][i]);
+    int j = 0;
+    for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
+        for (channel_i=0; channel_i<nb_channels; channel_i++)
+        {
+            guchar c = radiometry_img[j][0];
+            img_res[i + channel_i] = c;
+        }
 
 }
 
@@ -82,11 +89,37 @@ int compare_guchar(const void *a, const void *b) {
     return (*(guchar*)b - *(guchar*)a);
 }
 
+void compute_centers(guchar (*centers)[MAX_VECT], guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *clf_img, int nb_cols, int nb_lines, int nb_classes)
+{
+    int center_occurences[nb_classes];
+    for (int i = 0; i < nb_classes; i++)
+    {
+        center_occurences[i] = 0;
+        for (int j = 0; j < MAX_VECT; j++)
+            centers[i][j] = 0;
+    }
+    for (int j = 0; j < nb_lines; j++)
+    {
+        for (int i = 0; i < nb_cols; i++)
+        {
+            int class = (int)clf_img[i + j * nb_cols];
+            center_occurences[class]++;
+            if (class == nb_classes - 1)
+                continue;
+            for (int u = 0; u < RAD_VECT_SIZE; u++)
+                centers[class][u] += radiometry_img[i + j * nb_cols][u];
+        }
+    }
+    for (int i = 0; i < nb_classes; i++)
+        for (int j = 0; j < MAX_VECT; j++)
+            centers[i][j] /= center_occurences[i];
+}
+
 void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *img, int nb_cols, int nb_lines, int rad_vect_size)
 {
     int img_size = nb_cols * nb_lines;
     int rad_idx = 0;
-    for (int j = 0; j < nb_cols; j++)
+    for (int j = 0; j < nb_lines; j++)
     {
         for (int i = 0; i < nb_cols; i++)
         {
