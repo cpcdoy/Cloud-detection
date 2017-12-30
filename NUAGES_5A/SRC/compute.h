@@ -8,15 +8,7 @@ void ComputeImage(guchar *pucImaOrig,
 		  guint uiNbLine,
 		  guchar *pucImaRes);
 
-enum neighbor_loc
-{
-    SELF,
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-    ALL
-};
+#define MAX_VECT 5
 
-guchar get_pixel(guchar *img, enum neighbor_loc loc, int curr_loc);
 guchar get_pixel_radiometry(guchar *img, int curr_loc);
+void fill_lin_space(guchar (*arr)[MAX_VECT], guchar max_val, guchar min_val, int nb_classes);
