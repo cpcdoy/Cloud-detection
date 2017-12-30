@@ -42,14 +42,17 @@ void ComputeImage(guchar *img_orig,
     printf("Img: l:%d c:%d\n", nb_lines, nb_cols);
 
     // Find min/max
-    img_size=nb_cols*nb_lines;
+    img_size = nb_cols * nb_lines;
     guchar max_val = 0;
     guchar min_val = 255;
-    for (i=0; i<img_size*nb_channels; i=i+nb_channels)
+    guchar img_rad[img_size];
+    int j = 0;
+    for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
             guchar c = get_pixel_radiometry(img_orig, i);
             img_res[i + channel_i] = c;
+            img_rad[j] = c;
 
             max_val = MAX(max_val, c);
             min_val = MIN(min_val, c);
@@ -67,25 +70,65 @@ void ComputeImage(guchar *img_orig,
     fill_lin_space(centers, max_val, min_val, nb_classes);
 
     // Compute radiometric vectors
-    img_size = nb_cols * nb_lines;
-    for (i = 0; i < img_size * nb_channels; i = i + nb_channels)
-        for (channel_i = 0; channel_i < nb_channels; channel_i++)
-            img_res[i + channel_i] = get_pixel_radiometry(img_orig, i);
     guchar radiometry_img[img_size][RAD_VECT_SIZE];
-    compute_radiometric_vectors(radiometry_img, img_res, nb_cols, nb_lines, RAD_VECT_SIZE);
-    for (int i = 0; i < RAD_VECT_SIZE; i++)
-        printf("%d\n", radiometry_img[0][i]);
-    int j = 0;
+    compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
+
+    guchar class_img[img_size];
+    assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
+
+    j = 0;
     for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
             guchar c = radiometry_img[j][0];
+            //guchar c = class_img[j];
             img_res[i + channel_i] = c;
         }
-
+    printf("j: %d\n", j);
 }
 
-int compare_guchar(const void *a, const void *b) {
+// Utils
+double euclidean_dist(guchar p1[RAD_VECT_SIZE], guchar p2[RAD_VECT_SIZE])
+{
+    double dist = 0.0;
+    for (int i = 0; i < RAD_VECT_SIZE; i++)
+    {
+        double p = p2[i] - p1[i];
+        dist += p * p;
+    }
+
+    return sqrt(dist);
+}
+
+int get_closest_center(guchar v[RAD_VECT_SIZE], guchar (*centers)[RAD_VECT_SIZE], int nb_classes)
+{
+    int min_class = 0;
+    double min_dist = INT_MAX;
+    for (int i = 0; i < nb_classes; i++)
+    {
+        double dist = euclidean_dist(v, centers[i]);
+        if (dist < min_dist)
+        {
+            min_class = i * 20;
+            min_dist = dist;
+        }
+    }
+
+    return min_class;
+}
+
+void assign_classes(guchar (*centers)[RAD_VECT_SIZE], guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *class_img, int nb_classes, int nb_cols, int nb_lines)
+{
+    for (int i = 0; i < nb_cols; i++)
+        for (int j = 0; j < nb_lines; j++)
+        {
+            int loc = i + j * nb_cols;
+            class_img[loc] = get_closest_center(radiometry_img[loc], centers, nb_classes);
+        }
+}
+
+int compare_guchar(const void *a, const void *b)
+{
     return (*(guchar*)b - *(guchar*)a);
 }
 
@@ -119,9 +162,9 @@ void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar
 {
     int img_size = nb_cols * nb_lines;
     int rad_idx = 0;
-    for (int j = 0; j < nb_lines; j++)
+    for (int i = 0; i < nb_cols; i++)
     {
-        for (int i = 0; i < nb_cols; i++)
+        for (int j = 0; j < nb_lines; j++)
         {
             radiometry_img[i + j * nb_cols][0] = img[i + j * nb_cols];
             rad_idx = 1;
