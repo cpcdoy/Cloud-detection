@@ -72,7 +72,7 @@ void ComputeImage(guchar *img_orig,
         for (channel_i = 0; channel_i < nb_channels; channel_i++)
             img_res[i + channel_i] = get_pixel_radiometry(img_orig, i);
     guchar radiometry_img[img_size][RAD_VECT_SIZE];
-    compute_radiometry(radiometry_img, img_res, nb_cols, nb_lines, RAD_VECT_SIZE);
+    compute_radiometric_vectors(radiometry_img, img_res, nb_cols, nb_lines, RAD_VECT_SIZE);
     for (int i = 0; i < RAD_VECT_SIZE; i++)
         printf("%d\n", radiometry_img[0][i]);
 
@@ -82,7 +82,7 @@ int compare_guchar(const void *a, const void *b) {
     return (*(guchar*)b - *(guchar*)a);
 }
 
-void compute_radiometry(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *img, int nb_cols, int nb_lines, int rad_vect_size)
+void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *img, int nb_cols, int nb_lines, int rad_vect_size)
 {
     int img_size = nb_cols * nb_lines;
     int rad_idx = 0;
