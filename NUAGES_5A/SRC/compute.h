@@ -24,3 +24,5 @@ void assign_classes(guchar (*centers)[RAD_VECT_SIZE], guchar (*radiometry_img)[R
 void fill_lin_space(guchar (*arr)[MAX_VECT], guchar max_val, guchar min_val, int nb_classes);
 
 void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *img, int nb_cols, int nb_lines, int rad_vect_size);
+
+void compute_centers(guchar (*centers)[MAX_VECT], guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *clf_img, int nb_cols, int nb_lines, int nb_classes);

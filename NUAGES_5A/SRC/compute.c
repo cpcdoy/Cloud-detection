@@ -76,15 +76,18 @@ void ComputeImage(guchar *img_orig,
     guchar class_img[img_size];
     assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
 
+    compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
+
+
     j = 0;
     for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
-            guchar c = radiometry_img[j][0];
-            //guchar c = class_img[j];
+            //guchar c = radiometry_img[j][0];
+            guchar c = class_img[j] * 20;
             img_res[i + channel_i] = c;
         }
-    printf("j: %d\n", j);
+    //printf("j: %d\n", j);
 }
 
 // Utils
@@ -109,7 +112,7 @@ int get_closest_center(guchar v[RAD_VECT_SIZE], guchar (*centers)[RAD_VECT_SIZE]
         double dist = euclidean_dist(v, centers[i]);
         if (dist < min_dist)
         {
-            min_class = i * 20;
+            min_class = i;
             min_dist = dist;
         }
     }
@@ -132,30 +135,61 @@ int compare_guchar(const void *a, const void *b)
     return (*(guchar*)b - *(guchar*)a);
 }
 
-void compute_centers(guchar (*centers)[MAX_VECT], guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *clf_img, int nb_cols, int nb_lines, int nb_classes)
+void compute_centers(guchar (*centers_out)[MAX_VECT], guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *clf_img, int nb_cols, int nb_lines, int nb_classes)
 {
     int center_occurences[nb_classes];
+    int centers[nb_classes][MAX_VECT];
+
     for (int i = 0; i < nb_classes; i++)
     {
         center_occurences[i] = 0;
         for (int j = 0; j < MAX_VECT; j++)
             centers[i][j] = 0;
     }
-    for (int j = 0; j < nb_lines; j++)
+
+    for (int i = 0; i < nb_cols; i++)
     {
-        for (int i = 0; i < nb_cols; i++)
+        for (int j = 0; j < nb_lines; j++)
         {
-            int class = (int)clf_img[i + j * nb_cols];
+            int class = clf_img[i + j * nb_cols];
             center_occurences[class]++;
             if (class == nb_classes - 1)
                 continue;
-            for (int u = 0; u < RAD_VECT_SIZE; u++)
+            for (int u = 0; u < MAX_VECT; u++)
                 centers[class][u] += radiometry_img[i + j * nb_cols][u];
         }
     }
+
+    int cloud_size = center_occurences[nb_classes - 1] * MAX_VECT;
+    guchar center_cloud_vals[cloud_size];
+    int cloud_idx = 0;
+    for (int i = 0; i < nb_cols; i++)
+        for (int j = 0; j < nb_lines; j++)
+        {
+            int class = clf_img[i + j * nb_cols];
+            if (class == nb_classes - 1)
+                for (int u = 0; u < MAX_VECT; u++, cloud_idx++)
+                    center_cloud_vals[cloud_idx] = radiometry_img[i + j * nb_cols][u];
+        }
+
+    qsort(&center_cloud_vals, cloud_size, sizeof (guchar), compare_guchar);
+    
+    int median_cloud_rad = center_cloud_vals[cloud_size / 2];
+
+    for (int j = 0; j < MAX_VECT; j++)
+        centers_out[nb_classes - 1][j] = median_cloud_rad;
+
     for (int i = 0; i < nb_classes; i++)
         for (int j = 0; j < MAX_VECT; j++)
-            centers[i][j] /= center_occurences[i];
+        {
+            if (center_occurences[i] > 0 && i != nb_classes - 1)
+            {
+                centers[i][j] /= center_occurences[i];
+                centers_out[i][j] = (guchar)centers[i][j];
+            }
+            printf("center: %d, value: %d\n", i, centers_out[i][j]);
+        }
+
 }
 
 void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar *img, int nb_cols, int nb_lines, int rad_vect_size)
