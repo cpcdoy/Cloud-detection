@@ -81,7 +81,6 @@ void ComputeImage(guchar *img_orig,
         assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
 
         compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
-        //printf("----------------- It %d\n", i);
     }
 
     j = 0;
@@ -96,7 +95,7 @@ void ComputeImage(guchar *img_orig,
                 cloud_nb++;
         }
     cloud_nb /= 3;
-    printf("Cloud percent : %f\n", ((float)cloud_nb / (float)img_size) * 100.f);
+    printf("Cloud percent : %f\n\n", ((float)cloud_nb / (float)img_size) * 100.f);
 }
 
 // Utils
