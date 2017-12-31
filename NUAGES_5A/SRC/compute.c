@@ -69,15 +69,20 @@ void ComputeImage(guchar *img_orig,
     guchar centers[nb_classes][MAX_VECT];
     fill_lin_space(centers, max_val, min_val, nb_classes);
 
-    // Compute radiometric vectors
     guchar radiometry_img[img_size][RAD_VECT_SIZE];
-    compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
-
     guchar class_img[img_size];
-    assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
 
-    compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
+    const int max_it = 5;
+    for (int i = 0; i < 5; i++)
+    {
+        // Compute radiometric vectors
+        compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
 
+        assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
+
+        compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
+        printf("----------------- It %d\n", i);
+    }
 
     j = 0;
     for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
@@ -173,7 +178,7 @@ void compute_centers(guchar (*centers_out)[MAX_VECT], guchar (*radiometry_img)[R
         }
 
     qsort(&center_cloud_vals, cloud_size, sizeof (guchar), compare_guchar);
-    
+
     int median_cloud_rad = center_cloud_vals[cloud_size / 2];
 
     for (int j = 0; j < MAX_VECT; j++)
