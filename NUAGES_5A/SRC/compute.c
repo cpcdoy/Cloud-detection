@@ -58,8 +58,8 @@ void ComputeImage(guchar *img_orig,
             min_val = MIN(min_val, c);
         }
 
-    printf("Max: %d\n", max_val);
-    printf("Min: %d\n", min_val);
+    //printf("Max: %d\n", max_val);
+    //printf("Min: %d\n", min_val);
 
     //const int nb_classes_p = 8;
     const int nb_classes_xs = 9;
@@ -73,7 +73,7 @@ void ComputeImage(guchar *img_orig,
     guchar class_img[img_size];
 
     const int max_it = 5;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < max_it; i++)
     {
         // Compute radiometric vectors
         compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
@@ -81,17 +81,22 @@ void ComputeImage(guchar *img_orig,
         assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
 
         compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
-        printf("----------------- It %d\n", i);
+        //printf("----------------- It %d\n", i);
     }
 
     j = 0;
+    int cloud_nb = 0;
     for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
             guchar c = class_img[j];
             if (c < nb_classes - 3)
                 img_res[i + channel_i] = 0;
+            else
+                cloud_nb++;
         }
+    cloud_nb /= 3;
+    printf("Cloud percent : %f\n", ((float)cloud_nb / (float)img_size) * 100.f);
 }
 
 // Utils
@@ -191,7 +196,7 @@ void compute_centers(guchar (*centers_out)[MAX_VECT], guchar (*radiometry_img)[R
                 centers[i][j] /= center_occurences[i];
                 centers_out[i][j] = (guchar)centers[i][j];
             }
-            printf("center: %d, value: %d\n", i, centers_out[i][j]);
+            //printf("center: %d, value: %d\n", i, centers_out[i][j]);
         }
 
 }
@@ -239,11 +244,11 @@ void compute_radiometric_vectors(guchar (*radiometry_img)[RAD_VECT_SIZE], guchar
 void fill_lin_space(guchar (*arr)[MAX_VECT], guchar max_val, guchar min_val, int nb_classes)
 {
     int step = (max_val - min_val) / nb_classes;
-    printf("Step: %d\n", step);
-    printf("m: %d\n", max_val);
+    //printf("Step: %d\n", step);
+    //printf("m: %d\n", max_val);
     for (int i = min_val + step / 2, center = 0; i < max_val && center < nb_classes; i += step, center++)
     {
-        printf("%d %d\n", i, center);
+        //printf("%d %d\n", i, center);
         for (int j = 0; j < MAX_VECT; j++)
             arr[center][j] = i;
     }
