@@ -31,6 +31,17 @@ Rem:
 Voir aussi:
 
 ---------------------------------------*/
+int isequal(guchar (*centers)[RAD_VECT_SIZE],  guchar (*last_centers)[RAD_VECT_SIZE], int nb_classes)
+{
+    for (int i = 0; i < nb_classes; i++)
+        for (int j = 0; j < MAX_VECT; j++)
+        {
+            if (centers[i][j] != last_centers[i][j])
+                return 0;
+        }
+    return 1;
+}
+
 void ComputeImage(guchar *img_orig,
         guint nb_lines,
         guint nb_cols,
@@ -67,14 +78,27 @@ void ComputeImage(guchar *img_orig,
 
     // Init of mass centers
     guchar centers[nb_classes][MAX_VECT];
+    guchar last_centers[nb_classes][MAX_VECT];
     fill_lin_space(centers, max_val, min_val, nb_classes);
 
     guchar radiometry_img[img_size][RAD_VECT_SIZE];
     guchar class_img[img_size];
 
-    const int max_it = 5;
-    for (int i = 0; i < max_it; i++)
+    compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
+
+    assign_classes(centers, radiometry_img, class_img, nb_classes, nb_cols, nb_lines);
+
+    compute_centers(centers, radiometry_img, class_img, nb_cols, nb_lines, nb_classes);
+
+    for (int i = 0; i < nb_classes; i++)
+        for (int j = 0; j < MAX_VECT; j++)
+            last_centers[i][j] = 0;
+
+    while (!isequal(centers, last_centers, nb_classes))
     {
+        for (int i = 0; i < nb_classes; i++)
+            for (int j = 0; j < MAX_VECT; j++)
+                last_centers[i][j] = centers[i][j];
         // Compute radiometric vectors
         compute_radiometric_vectors(radiometry_img, img_rad, nb_cols, nb_lines, RAD_VECT_SIZE);
 
