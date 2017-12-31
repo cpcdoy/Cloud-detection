@@ -5,38 +5,38 @@
 #include "compute.h"
 
 /*---------------------------------------
-  Proto: 
-       void ShowImaOrig(GtkButton *button_ok, 
+  Proto:
+       void ShowImaOrig(GtkButton *button_ok,
   		        GtkWidget **ppwTabArgs)
-       
+
   But: creer et afficher l'image originale dont le nom est
        contenu dans un FileSelection
 
   Entree: --->le button OK du FileSelection
           --->un tableau de Widgets avec :
 	  case 0: le GtkFileSelection contenant le nom du fichier image
-	  case 1: le GtkImage pour l'image originale et initialisee 
+	  case 1: le GtkImage pour l'image originale et initialisee
 	  lors de l'appel de la fonction ShowImaOrig
 	  case 2 : la fenetre principale
 	  case 3: le tableau ou est dessine l'image originale
 	  case 4: le tableau ou est dessinee l'image resultat
-	  case 5: le GtkImage pour l'image originale et initialisee 
+	  case 5: le GtkImage pour l'image originale et initialisee
 	  lors de l'appel de la fonction ShowImaComputed
 
-  Sortie: 
+  Sortie:
 
   Rem:
 
   Voir aussi:
 
  ---------------------------------------*/
-void ShowImaOrig(GtkButton *button_ok, 
+void ShowImaOrig(GtkButton *button_ok,
 		 GtkWidget **ppwTabArgs)
 {
   GtkFileSelection *pfsOpenFile;
   gchar *pcFileName;
   GdkPixbuf* pGdkPixbufImaIn;
- 
+
   /* recuperation du nom du fichier image */
   pfsOpenFile = GTK_FILE_SELECTION(*(ppwTabArgs));
   if (pfsOpenFile == NULL){
@@ -44,7 +44,7 @@ void ShowImaOrig(GtkButton *button_ok,
     exit(0);
   }
   pcFileName = (gchar*) gtk_file_selection_get_filename(pfsOpenFile);
-  
+
   /* chargement en memoire de l'image */
   pGdkPixbufImaIn = gdk_pixbuf_new_from_file (pcFileName,NULL);
   /* echec du chargement de l'image en memoire */
@@ -53,7 +53,7 @@ void ShowImaOrig(GtkButton *button_ok,
     exit(0);
   }
   /* reussite du chargement de l'image en memoire */
-  else   
+  else
     {
       /* on vide l'image precedente */
       gtk_image_clear(GTK_IMAGE(*(ppwTabArgs+1)));
@@ -70,8 +70,8 @@ void ShowImaOrig(GtkButton *button_ok,
 
 
 /*---------------------------------------
-  Proto: 
-       void ShowImaComputed(GtkObject *button_analyse, 
+  Proto:
+       void ShowImaComputed(GtkObject *button_analyse,
 		            GtkWidget **ppwTabArgs)
 
 
@@ -80,22 +80,22 @@ void ShowImaOrig(GtkButton *button_ok,
   Entrees: --->le button lancant le calcul
            --->un tableau de Widgets avec :
 	  case 0: le GtkFileSelection contenant le nom du fichier image
-	  case 1: le GtkImage pour l'image originale et initialisee 
+	  case 1: le GtkImage pour l'image originale et initialisee
 	  lors de l'appel de la fonction ShowImaOrig
 	  case 2 : la fenetre principale
 	  case 3: le tableau ou est dessine l'image originale
 	  case 4: le tableau ou est dessinee l'image resultat
-	  case 5: le GtkImage pour l'image originale et initialisee 
+	  case 5: le GtkImage pour l'image originale et initialisee
 	  lors de l'appel de la fonction ShowImaComputed
 
-  Sortie: 
+  Sortie:
 
-  Rem: 
+  Rem:
 
   Voir aussi: la fonction ComputeImage dans compute.c
 
  ---------------------------------------*/
-void ShowImaComputed(GtkObject *button_analyse, 
+void ShowImaComputed(GtkObject *button_analyse,
 		     GtkWidget **ppwTabArgs)
 {
    int NbCol, NbLine;
@@ -112,7 +112,7 @@ void ShowImaComputed(GtkObject *button_analyse,
    pGdkPixbufImaRes=gdk_pixbuf_copy(pGdkPixbufImaOrig);
 
    /* recuperation du nombre de lignes et de colonnes de l'image*/
-   NbCol=gdk_pixbuf_get_width(pGdkPixbufImaOrig); 
+   NbCol=gdk_pixbuf_get_width(pGdkPixbufImaOrig);
    NbLine=gdk_pixbuf_get_height(pGdkPixbufImaOrig);
    /* recuperation du tableau des pixels de l'image originale */
    pucImaOrig=gdk_pixbuf_get_pixels(pGdkPixbufImaOrig);
@@ -130,7 +130,7 @@ void ShowImaComputed(GtkObject *button_analyse,
 			     *(ppwTabArgs+5),
 			     0,1,1,2);
    gtk_widget_show_all(*(ppwTabArgs+2));
-   
+
 }
 
 /************************************************
@@ -142,12 +142,12 @@ int main (int argc, char **argv)
   /*---------------------------------------------
     Declarations
     ---------------------------------------------*/
- 
+
   /*--------------------*/
   /*la fenetre principale de plus haut niveau*/
   /*--------------------*/
   GtkWidget *pwMainWind;
-  /*boite principale contenant tous les objets de 
+  /*boite principale contenant tous les objets de
     la fenetre principale*/
   GtkWidget *pwMainBox;
 
@@ -163,7 +163,7 @@ int main (int argc, char **argv)
   /*barre de boutons ouverture image*/
   GtkWidget *pwButtonBoxOpen;
   /*bouton ouverture image*/
-  GtkWidget *pwButtonOpen;  
+  GtkWidget *pwButtonOpen;
   /*bouton quitter*/
   GtkWidget *pwButtonQuit;
   /*fenetre de selection des fichiers*/
@@ -171,12 +171,12 @@ int main (int argc, char **argv)
   /*le tableau des GtkWidget permettant le dessin de l'image origine et
     de l'image segmentee
     case 0: le GtkFileSelection contenant le nom du fichier image
-    case 1: le GtkImage pour l'image originale et initialisee 
+    case 1: le GtkImage pour l'image originale et initialisee
     lors de l'appel de la fonction ShowImaOrig
     case 2 : la fenetre principale
     case 3: le tableau ou est dessine l'image originale
     case 4: le tableau ou est dessinee l'image resultat
-    case 5: le GtkImage pour l'image originale et initialisee 
+    case 5: le GtkImage pour l'image originale et initialisee
     lors de l'appel de la fonction ShowImaComputed*/
   GtkWidget *ppwTabArgs[6];
   /*GtkImage de l'image d'origine*/
@@ -187,7 +187,7 @@ int main (int argc, char **argv)
   /*--------------------*/
   GtkWidget *pwBoxRes;
   /*decoration fenetre d'affichage de l'image resultat*/
-  GtkWidget *pwDecoRes; 
+  GtkWidget *pwDecoRes;
   /*tableau pour l'organisation de la sous-fenetre
     d'affichage de l'image resultat*/
   GtkWidget *pwTabShowRes;
@@ -204,10 +204,10 @@ int main (int argc, char **argv)
   /*---------------------------------------------
     actions
     ---------------------------------------------*/
-  
+
   /*initialisation des appels des bibliotheques*/
-  gtk_init(&argc,&argv);   
-  
+  gtk_init(&argc,&argv);
+
   /*--------------
     fenetre principale
     --------------*/
@@ -221,7 +221,7 @@ int main (int argc, char **argv)
 		     (GtkSignalFunc) gtk_exit,NULL);
   pwMainBox=gtk_hbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(pwMainWind),pwMainBox);
-  
+
 
   /*--------------
     fenetre d'affichage de l'image originale
@@ -235,7 +235,7 @@ int main (int argc, char **argv)
   gtk_container_set_border_width(GTK_CONTAINER(pwTabShowOrig),5);
   gtk_container_add(GTK_CONTAINER(pwDecoOrig),pwTabShowOrig);
 
-  /*la zone d'affichage de l'image originale*/ 
+  /*la zone d'affichage de l'image originale*/
    pwImaOrig=gtk_image_new();
    gtk_widget_set_usize(pwImaOrig,NbCol,NbCol);
    gtk_table_attach_defaults(GTK_TABLE(pwTabShowOrig), pwImaOrig,
@@ -254,14 +254,14 @@ int main (int argc, char **argv)
   gtk_signal_connect(GTK_OBJECT(pwButtonQuit),"clicked",
 		     (GtkSignalFunc) gtk_exit,NULL);
   gtk_container_add(GTK_CONTAINER(pwButtonBoxOpen),pwButtonQuit);
-  
+
 
   /*la fenetre de choix de l'image*/
   pwOpenFileSelection=gtk_file_selection_new("Choix de l'image");
-  gtk_signal_connect(GTK_OBJECT(pwOpenFileSelection), "delete_event", 
+  gtk_signal_connect(GTK_OBJECT(pwOpenFileSelection), "delete_event",
 		     GTK_SIGNAL_FUNC(gtk_widget_hide),
 		     pwOpenFileSelection);
-  gtk_signal_connect(GTK_OBJECT(pwOpenFileSelection), "destroy_event", 
+  gtk_signal_connect(GTK_OBJECT(pwOpenFileSelection), "destroy_event",
 		     GTK_SIGNAL_FUNC(gtk_widget_hide),
 		     pwOpenFileSelection);
   gtk_signal_connect_object(GTK_OBJECT(pwButtonOpen),
@@ -276,7 +276,7 @@ int main (int argc, char **argv)
   /*les arguments pour le dessin de l'image*/
   /*case 0: le GtkFileSelection contenant le nom du fichier image*/
   ppwTabArgs[0]=pwOpenFileSelection;
-  /*case 1: le GtkImage pour l'image originale et initialisee 
+  /*case 1: le GtkImage pour l'image originale et initialisee
     lors de l'appel de la fonction ShowImaOrig*/
   ppwTabArgs[1]=pwImaOrig;
   /*case 2 : la fenetre principale*/
@@ -294,7 +294,7 @@ int main (int argc, char **argv)
 				       ->ok_button),
 			    "clicked",
 			    GTK_SIGNAL_FUNC(gtk_widget_hide),
-			    GTK_OBJECT(pwOpenFileSelection));  
+			    GTK_OBJECT(pwOpenFileSelection));
 
   /*--------------
     fenetre d'affichage de l'image resultat
@@ -317,7 +317,7 @@ int main (int argc, char **argv)
 			     0,1,1,2);
   /*case 5: le GtkImage resultat*/
    ppwTabArgs[5]=pwImaRes;
-   
+
   /*la boite contenant le bouton quitter*/
   pwButtonBoxRes=gtk_hbutton_box_new();
   gtk_table_attach_defaults(GTK_TABLE(pwTabShowRes), pwButtonBoxRes,
@@ -327,9 +327,9 @@ int main (int argc, char **argv)
   pwButtonAnalyse=gtk_button_new_with_label("Analyse");
   gtk_container_add(GTK_CONTAINER(pwButtonBoxRes),pwButtonAnalyse);
    gtk_signal_connect(GTK_OBJECT(pwButtonAnalyse),
-		      "clicked", 
-		      GTK_SIGNAL_FUNC(ShowImaComputed), 
-		      ppwTabArgs); 
+		      "clicked",
+		      GTK_SIGNAL_FUNC(ShowImaComputed),
+		      ppwTabArgs);
 
   /*--------------
     boucle principale
@@ -338,4 +338,4 @@ int main (int argc, char **argv)
   gtk_main();
   return(0);
 
-} 
+}
