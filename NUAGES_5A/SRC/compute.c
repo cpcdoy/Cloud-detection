@@ -88,11 +88,10 @@ void ComputeImage(guchar *img_orig,
     for (i=0; i<img_size*nb_channels; i=i+nb_channels, j++)
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
-            //guchar c = radiometry_img[j][0];
-            guchar c = class_img[j] * 20;
-            img_res[i + channel_i] = c;
+            guchar c = class_img[j];
+            if (c < nb_classes - 3)
+                img_res[i + channel_i] = 0;
         }
-    //printf("j: %d\n", j);
 }
 
 // Utils
