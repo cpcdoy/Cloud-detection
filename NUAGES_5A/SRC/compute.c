@@ -94,7 +94,9 @@ void ComputeImage(guchar *img_orig,
         for (int j = 0; j < MAX_VECT; j++)
             last_centers[i][j] = 0;
 
-    while (!isequal(centers, last_centers, nb_classes))
+    const int max_it = 7;
+    int it = 0;
+    while (!isequal(centers, last_centers, nb_classes) && it++ < max_it)
     {
         for (int i = 0; i < nb_classes; i++)
             for (int j = 0; j < MAX_VECT; j++)
@@ -113,10 +115,17 @@ void ComputeImage(guchar *img_orig,
         for (channel_i=0; channel_i<nb_channels; channel_i++)
         {
             guchar c = class_img[j];
-            if (c < nb_classes - 3)
+            int mean = 0;
+            for (int comp = 0; comp < MAX_VECT; comp++)
+                mean += centers[c][comp];
+            mean /= MAX_VECT;
+
+            if (c < nb_classes - 2)
                 img_res[i + channel_i] = 0;
             else
-                cloud_nb++;
+              cloud_nb++;
+
+
         }
     cloud_nb /= 3;
     printf("Cloud percent : %f\n\n", ((float)cloud_nb / (float)img_size) * 100.f);
@@ -272,8 +281,12 @@ void fill_lin_space(guchar (*arr)[MAX_VECT], guchar max_val, guchar min_val, int
     for (int i = min_val + step / 2, center = 0; i < max_val && center < nb_classes; i += step, center++)
     {
         //printf("%d %d\n", i, center);
-        for (int j = 0; j < MAX_VECT; j++)
-            arr[center][j] = i;
+        if (center < nb_classes - 1)
+            for (int j = 0; j < MAX_VECT; j++)
+                arr[center][j] = i;
+        else
+            for (int j = 0; j < MAX_VECT; j++)
+                arr[center][j] = max_val;
     }
 }
 
